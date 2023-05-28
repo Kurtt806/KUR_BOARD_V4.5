@@ -70,7 +70,6 @@ void enterConnect()
 void enterRun()
 {
     KURState::set(MODE_RUN);
-    Servo_Control();
     initbutton();
     if(RES == true)
     {
@@ -82,6 +81,7 @@ void enterRun()
     }
     if (client.connected())
     {
+        Servo_Control();
         ESP_Phone();
         if (client.available())
         {
@@ -94,15 +94,18 @@ void enterRun()
         POS_SERVO_2 = C2.toInt();
         POS_SERVO_3 = C3.toInt();
         POS_SERVO_4 = C4.toInt();
-
+        Servo_Control();
         client = serverCAR.available();
     }
     if(WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_CONNECTION_LOST)
     {
+        
         POS_SERVO_1 = C1.toInt();
         POS_SERVO_2 = C2.toInt();
         POS_SERVO_3 = C3.toInt();
         POS_SERVO_4 = C4.toInt(); 
+        Servo_Control();
+        KURState::set(MODE_CONNECT);
     }
     if (OLED == true)
     {
