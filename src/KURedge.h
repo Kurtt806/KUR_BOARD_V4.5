@@ -21,11 +21,6 @@ inline void KURState::set(State m)
     }
 }
 
-void runloop()
-{
-    Servo_Control();
-    initbutton();
-}
 
 class KUR
 {

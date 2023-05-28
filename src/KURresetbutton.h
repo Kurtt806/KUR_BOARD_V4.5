@@ -1,13 +1,16 @@
 
 #ifdef BOARD_BUTTON_PIN
-
+bool OTA = false;
+bool RES = false;
 volatile bool g_buttonPressed = false;
 volatile uint32_t g_buttonPressTime = -1;
 void button_hold(void)
 {
+  RES = true;
 }
 void button_press(void)
 {
+  OTA = true;
 }
 
 void IRAM_ATTR button_change(void)

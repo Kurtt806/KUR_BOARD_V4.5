@@ -70,6 +70,16 @@ void enterConnect()
 void enterRun()
 {
     KURState::set(MODE_RUN);
+    Servo_Control();
+    initbutton();
+    if(RES == true)
+    {
+        KURState::set(MODE_CONFIG);
+    }
+    if(OTA == true)
+    {
+        KURState::set(MODE_OTA);
+    }
     if (client.connected())
     {
         ESP_Phone();
@@ -80,18 +90,34 @@ void enterRun()
     }
     else
     {
-        for(int i=0; i<5; i++)
-        {
-            POS_SERVO[i] = 90;
-        }
+        POS_SERVO_1 = C1.toInt();
+        POS_SERVO_2 = C2.toInt();
+        POS_SERVO_3 = C3.toInt();
+        POS_SERVO_4 = C4.toInt();
+
         client = serverCAR.available();
     }
-    if(OLED == true)
+    if(WiFi.status() == WL_DISCONNECTED || WiFi.status() == WL_CONNECTION_LOST)
+    {
+        POS_SERVO_1 = C1.toInt();
+        POS_SERVO_2 = C2.toInt();
+        POS_SERVO_3 = C3.toInt();
+        POS_SERVO_4 = C4.toInt(); 
+    }
+    if (OLED == true)
     {
         display.clear();
         draw_LINEandTEXT();
         draw_INFO_ESP();
         display.display();
+    }
+
+    if (millis() - time_TEST > 500)
+    {
+        DEBUG_PRINT(POS_SERVO_1);
+        DEBUG_PRINT("-----");
+        DEBUG_PRINTLN(POS_SERVO_2);
+        time_TEST = millis();
     }
 }
 
@@ -100,6 +126,7 @@ void enterConfig()
     KURState::set(MODE_CONFIG);
     serverCAR.close();
     WiFi.mode(WIFI_OFF);
+    delay(1000);
     WiFi.mode(WIFI_AP);
     wifimanager();
     DEBUG_PRINTLN("[MODE]--- MODE_WAIT_CONFIG");
@@ -119,7 +146,6 @@ void enterOTA()
     WiFi.mode(WIFI_OFF);
     delay(100);
     OTA = true;
-    DEBUG_PRINTLN("[MODE]--- MODE_CONNECT");
     KURState::set(MODE_CONNECT);
 }
 

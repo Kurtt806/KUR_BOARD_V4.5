@@ -42,8 +42,10 @@ Servo servo1;
 Servo servo2;
 Servo servo3;
 Servo servo4;
-int POS_SERVO[] = {90, 90, 90, 90, 90};
-
+int POS_SERVO_1;
+int POS_SERVO_2;
+int POS_SERVO_3;
+int POS_SERVO_4;
 
 SSD1306Wire display(0x3c, SDA, SCL);
 
@@ -52,16 +54,16 @@ unsigned long previousMillis = 0;
 const int interval = 6000;
 unsigned long time_DATA = 0;
 unsigned long time_CONNECT = 0;
+unsigned long time_TEST = 0;
 unsigned long currentMillis = millis();
 char cmd[100];
 int cmdIndex;
 unsigned long lastCmdTime = 0;
 unsigned long aliveSentTime = 0;
 
-int PROTECT_KEY[] = {0, 0, 0, 0, 0};
+int PROTECT_KEY[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 bool OLED = false;
-bool OTA = false;
 
 void initSPIFFS()
 {
@@ -186,6 +188,8 @@ void initconfig()
     digitalWrite(BOARD_LED_PIN, LOW);
     initSPIFFS();
     initservo();
+    C1 = readFile(SPIFFS, C1Path);
+    C2 = readFile(SPIFFS, C2Path);
     ssid = readFile(SPIFFS, ssidPath);
     pass = readFile(SPIFFS, passPath);
     ip = readFile(SPIFFS, ipPath);
@@ -287,6 +291,28 @@ void thuchienlenh()
             DEBUG_PRINTLN(POS_SERVO_4);
         }
     }
+    
+    if (cmdStartsWith("POS1"))
+    {
+        PROTECT_KEY[4] = PROTECT_KEY[4] + 1;
+        if (PROTECT_KEY[4] >= 3)
+        {
+            PROTECT_KEY[4] = 0;
+            C1 = POS_SERVO_1;
+            writeFile(SPIFFS, C1Path, C1.c_str());
+        }
+    }
+    if (cmdStartsWith("POS2"))
+    {
+        PROTECT_KEY[5] = PROTECT_KEY[5] + 1;
+        if (PROTECT_KEY[5] >= 3)
+        {
+            PROTECT_KEY[5] = 0;
+            C2 = POS_SERVO_2;
+            writeFile(SPIFFS, C2Path, C2.c_str());
+        }
+    }
+
     if (cmdStartsWith("reset"))
     {
         PROTECT_KEY[1] = PROTECT_KEY[1] + 1;
