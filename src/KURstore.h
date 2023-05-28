@@ -189,6 +189,8 @@ void initconfig()
     initservo();
     C1 = readFile(SPIFFS, C1Path);
     C2 = readFile(SPIFFS, C2Path);
+    C3 = readFile(SPIFFS, C3Path);
+    C4 = readFile(SPIFFS, C4Path);
     ssid = readFile(SPIFFS, ssidPath);
     pass = readFile(SPIFFS, passPath);
     ip = readFile(SPIFFS, ipPath);
@@ -211,7 +213,6 @@ void Servo_Control()
     servo2.write(POS_SERVO_2);
     servo3.write(POS_SERVO_3);
     servo4.write(POS_SERVO_4);
-
 }
 
 void draw_INFO_ESP()
@@ -295,23 +296,14 @@ void thuchienlenh()
     }
     if (cmdStartsWith("POS1"))
     {
-        PROTECT_KEY[4] = PROTECT_KEY[4] + 1;
-        if (PROTECT_KEY[4] >= 3)
-        {
             PROTECT_KEY[4] = 0;
             C1 = POS_SERVO_1;
             writeFile(SPIFFS, C1Path, C1.c_str());
-        }
     }
     if (cmdStartsWith("POS2"))
     {
-        PROTECT_KEY[5] = PROTECT_KEY[5] + 1;
-        if (PROTECT_KEY[5] >= 3)
-        {
-            PROTECT_KEY[5] = 0;
             C2 = POS_SERVO_2;
             writeFile(SPIFFS, C2Path, C2.c_str());
-        }
     }
     if (cmdStartsWith("reset"))
     {

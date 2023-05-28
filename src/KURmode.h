@@ -24,7 +24,7 @@ void enterLeader()
     POS_SERVO_1 = C1.toInt();
     POS_SERVO_2 = C2.toInt();
     POS_SERVO_3 = C3.toInt();
-    POS_SERVO_4 = C4.toInt();
+    POS_SERVO_4 = C4.toInt()
     WiFi.mode(WIFI_STA);
     if (ssid == "" || ip == "")
     {
@@ -89,8 +89,8 @@ void enterConnect()
                 display.drawString(10, 20, "SAFE");
                 display.drawString(2 , 30, "CH1");
                 display.drawString(28, 30, "CH2");
-                display.drawString(2 , 54, (String) POS_SERVO_1);
-                display.drawString(28, 54, (String) POS_SERVO_2);
+                display.drawString(2 , 42, (String) POS_SERVO_1);
+                display.drawString(28, 42, (String) POS_SERVO_2);
                 display.display();
             }
         }
