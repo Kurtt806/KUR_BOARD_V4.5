@@ -49,7 +49,6 @@ int POS_SERVO_4;
 
 SSD1306Wire display(0x3c, SDA, SCL);
 
-
 unsigned long previousMillis = 0;
 const int interval = 6000;
 unsigned long time_DATA = 0;
@@ -212,6 +211,7 @@ void Servo_Control()
     servo2.write(POS_SERVO_2);
     servo3.write(POS_SERVO_3);
     servo4.write(POS_SERVO_4);
+
 }
 
 void draw_INFO_ESP()
@@ -219,18 +219,20 @@ void draw_INFO_ESP()
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.setFont(ArialMT_Plain_10);
     display.drawString(2, 0, "KUR 4.5");
+    display.drawString(50, 0, StateStr[KURState::get()]);
     display.setFont(ArialMT_Plain_10);
 }
-
 void draw_LINEandTEXT()
 {
-    display.drawXbm(0, 54, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
-    display.drawHorizontalLine(0, 12, 128);  /*  _  */
-    display.drawHorizontalLine(0, 52, 38);   /*  _  */
-    display.drawHorizontalLine(50, 40, 128); /*  _  */
-    display.drawVerticalLine(48, 0, 12);     /*  |  */
-    display.drawVerticalLine(38, 52, 12);    /*  |  */
-    display.drawLine(38, 52, 50, 40);        /*  /  */
+    // display.drawXbm(0, 54, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
+    display.drawHorizontalLine(0, 12, 128); /*  _  */
+    display.drawHorizontalLine(50, 40, 90); /*  _  */
+    display.drawVerticalLine(48, 0, 120);   /*  |  */
+
+    display.drawHorizontalLine(0, 30, 48); /*  _  */
+    display.drawHorizontalLine(0, 42, 48); /*  _  */
+    display.drawHorizontalLine(0, 54, 48); /*  _  */
+    display.drawVerticalLine(24, 30, 82);  /*  |  */
 }
 
 boolean cmdStartsWith(const char *st)
@@ -291,7 +293,6 @@ void thuchienlenh()
             DEBUG_PRINTLN(POS_SERVO_4);
         }
     }
-    
     if (cmdStartsWith("POS1"))
     {
         PROTECT_KEY[4] = PROTECT_KEY[4] + 1;
@@ -312,7 +313,6 @@ void thuchienlenh()
             writeFile(SPIFFS, C2Path, C2.c_str());
         }
     }
-
     if (cmdStartsWith("reset"))
     {
         PROTECT_KEY[1] = PROTECT_KEY[1] + 1;
@@ -367,20 +367,20 @@ void Phone_ESP()
 
 void ESP_Phone()
 {
-    if (millis() - time_DATA > REFRESH_DURATION_DATA)
-    {
-        char CH1[4];
-        itoa(POS_SERVO_1, CH1, 10);
-        client.write("C1 ");
-        client.write(CH1);
-        client.write("\n");
-        char CH2[4];
-        itoa(POS_SERVO_2, CH2, 10);
-        client.write("C2 ");
-        client.write(CH2);
-        client.write("\n");
-        time_DATA = millis();
-    }
+    //     if (millis() - time_DATA > REFRESH_DURATION_DATA)
+    //     {
+    //         char CH1[4];
+    //         itoa(POS_SERVO_1, CH1, 10);
+    //         client.write("C1 ");
+    //         client.write(CH1);
+    //         client.write("\n");
+    //         char CH2[4];
+    //         itoa(POS_SERVO_2, CH2, 10);
+    //         client.write("C2 ");
+    //         client.write(CH2);
+    //         client.write("\n");
+    //         time_DATA = millis();
+    //     }
     if (millis() - time_CONNECT > REFRESH_DURATION_CONNECT)
     {
         int ssi = WiFi.RSSI();
@@ -392,4 +392,16 @@ void ESP_Phone()
         client.write("ON on\n");
         time_CONNECT = millis();
     }
+}
+
+static inline String macToString(byte mac[6])
+{
+    char buff[20];
+    snprintf(buff, sizeof(buff), "%02x:%02x:%02x:%02x:%02x:%02x",
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    return String(buff);
+}
+static String getWiFiMacAddress()
+{
+    return WiFi.macAddress();
 }
