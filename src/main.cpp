@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#define KUR_DEBUG
+//#define KUR_DEBUG
 
 /*###################################################################*/
 #define MANAGER_WIFI_NAME "KUR_DEV_1"

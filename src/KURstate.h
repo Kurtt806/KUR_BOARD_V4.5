@@ -13,7 +13,7 @@ enum State
   MODE_MAX_VALUE
 };
 
-#if defined(KUR_DEBUG)
+
 const char *StateStr[MODE_MAX_VALUE + 1] = {
     "ANALYSIS",
     "CONFIG",
@@ -25,7 +25,7 @@ const char *StateStr[MODE_MAX_VALUE + 1] = {
     "RESET",
 
     "INIT"};
-#endif
+
 
 namespace KURState
 {
