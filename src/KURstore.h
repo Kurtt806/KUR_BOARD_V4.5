@@ -359,20 +359,20 @@ void Phone_ESP()
 
 void ESP_Phone()
 {
-    //     if (millis() - time_DATA > REFRESH_DURATION_DATA)
-    //     {
-    //         char CH1[4];
-    //         itoa(POS_SERVO_1, CH1, 10);
-    //         client.write("C1 ");
-    //         client.write(CH1);
-    //         client.write("\n");
-    //         char CH2[4];
-    //         itoa(POS_SERVO_2, CH2, 10);
-    //         client.write("C2 ");
-    //         client.write(CH2);
-    //         client.write("\n");
-    //         time_DATA = millis();
-    //     }
+        if (millis() - time_DATA > REFRESH_DURATION_DATA)
+        {
+            char CH1[4];
+            itoa(POS_SERVO_1, CH1, 10);
+            client.write("C1 ");
+            client.write(CH1);
+            client.write("\n");
+            char CH2[4];
+            itoa(POS_SERVO_2, CH2, 10);
+            client.write("C2 ");
+            client.write(CH2);
+            client.write("\n");
+            time_DATA = millis();
+        }
     if (millis() - time_CONNECT > REFRESH_DURATION_CONNECT)
     {
         int ssi = WiFi.RSSI();

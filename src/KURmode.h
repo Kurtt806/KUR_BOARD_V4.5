@@ -24,7 +24,7 @@ void enterLeader()
     POS_SERVO_1 = C1.toInt();
     POS_SERVO_2 = C2.toInt();
     POS_SERVO_3 = C3.toInt();
-    POS_SERVO_4 = C4.toInt()
+    POS_SERVO_4 = C4.toInt();
     WiFi.mode(WIFI_STA);
     if (ssid == "" || ip == "")
     {

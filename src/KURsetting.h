@@ -23,7 +23,7 @@
 #define BUTTON_PRESS_TIME_ACTION    50
 
 #define REFRESH_DURATION_CONNECT    2000
-#define REFRESH_DURATION_DATA       50
+#define REFRESH_DURATION_DATA       200
 
 #define WAIT_OTA_RESET              300
 
