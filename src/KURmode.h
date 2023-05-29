@@ -1,11 +1,4 @@
-void restartMCU()
-{
-    WiFi.mode(WIFI_OFF);
-    ESP.restart();
-    while (1)
-    {
-    };
-}
+
 
 void enterLeader()
 {
@@ -25,6 +18,8 @@ void enterLeader()
     POS_SERVO_2 = C2.toInt();
     POS_SERVO_3 = C3.toInt();
     POS_SERVO_4 = C4.toInt();
+    servo1.write(POS_SERVO_1);
+    servo3.write(POS_SERVO_2);
     WiFi.mode(WIFI_STA);
     if (ssid == "" || ip == "")
     {
@@ -74,6 +69,7 @@ void enterConnect()
         }
         else
         {
+            digitalWrite(BOARD_LED_PIN, HIGH);
             DEBUG_PRINTLN("[MODE]--- MODE_RUN");
             serverCAR.begin();
             KURState::set(MODE_RUN);
@@ -87,10 +83,10 @@ void enterConnect()
                 display.drawString(52, 42, ip);
                 display.drawString(52, 52, getWiFiMacAddress());
                 display.drawString(10, 20, "SAFE");
-                display.drawString(2 , 30, "CH1");
+                display.drawString(2, 30, "CH1");
                 display.drawString(28, 30, "CH2");
-                display.drawString(2 , 42, (String) POS_SERVO_1);
-                display.drawString(28, 42, (String) POS_SERVO_2);
+                display.drawString(2, 42, (String)POS_SERVO_1);
+                display.drawString(28, 42, (String)POS_SERVO_2);
                 display.display();
             }
         }
@@ -105,22 +101,12 @@ void enterConnect()
 void enterRun()
 {
     KURState::set(MODE_RUN);
-    initbutton();
-    if (RES == true)
-    {
-        KURState::set(MODE_CONFIG);
-    }
-    if (OTA == true)
-    {
-        KURState::set(MODE_OTA);
-    }
     if (client.connected())
     {
         ESP_Phone();
         if (client.available())
         {
             Phone_ESP();
-            Servo_Control();
         }
     }
     else
@@ -128,19 +114,27 @@ void enterRun()
         client = serverCAR.available();
         POS_SERVO_1 = C1.toInt();
         POS_SERVO_2 = C2.toInt();
-        POS_SERVO_3 = C3.toInt();
-        POS_SERVO_4 = C4.toInt();
-        Servo_Control();
+        servo1.write(POS_SERVO_1);
+        servo2.write(POS_SERVO_2);
+        if (RES == true)
+        {
+            KURState::set(MODE_CONFIG);
+        }
+        if (OTA == true)
+        {
+            KURState::set(MODE_OTA);
+        }
     }
-    if (WiFi.status() == WL_DISCONNECTED)
+    if (WiFi.status() == WL_CONNECTION_LOST)
     {
         POS_SERVO_1 = C1.toInt();
         POS_SERVO_2 = C2.toInt();
-        POS_SERVO_3 = C3.toInt();
-        POS_SERVO_4 = C4.toInt();
-        Servo_Control();
+        servo1.write(POS_SERVO_1);
+        servo2.write(POS_SERVO_2);
         KURState::set(MODE_CONNECT);
     }
+    initbutton();
+    //KURState::set(MODE_RUN);
 }
 
 void enterConfig()
@@ -176,10 +170,6 @@ void enterWaitConfig()
         display.display();
     }
     initbutton();
-    if (OTA == true)
-    {
-        KURState::set(MODE_RESET);
-    }
 }
 
 void enterOTA()
@@ -211,10 +201,6 @@ void enterWaitOTA()
         display.display();
     }
     initbutton();
-    if (OTA == true)
-    {
-        KURState::set(MODE_RESET);
-    }
 }
 
 void enterReset()
@@ -228,5 +214,9 @@ void enterReset()
         draw_INFO_ESP();
         display.display();
     }
-    restartMCU();
+    WiFi.mode(WIFI_OFF);
+    ESP.restart();
+    while (1)
+    {
+    };
 }

@@ -6,7 +6,7 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 #include "SSD1306Wire.h"
-#include "Ticker.h"
+// #include "Ticker.h"
 #include <ESP32Servo.h>
 //---WIFI------------------------------------
 AsyncWebServer serverOTA(80);
@@ -55,7 +55,7 @@ unsigned long time_DATA = 0;
 unsigned long time_CONNECT = 0;
 unsigned long time_TEST = 0;
 unsigned long currentMillis = millis();
-char cmd[100];
+char cmd[40];
 int cmdIndex;
 unsigned long lastCmdTime = 0;
 unsigned long aliveSentTime = 0;
@@ -207,14 +207,6 @@ void initconfig()
     DEBUG_PRINTLN(gateway);
 }
 
-void Servo_Control()
-{
-    servo1.write(POS_SERVO_1);
-    servo2.write(POS_SERVO_2);
-    servo3.write(POS_SERVO_3);
-    servo4.write(POS_SERVO_4);
-}
-
 void draw_INFO_ESP()
 {
     display.setTextAlignment(TEXT_ALIGN_LEFT);
@@ -260,8 +252,7 @@ void thuchienlenh()
         if (ch >= 0 && ch <= 9 && cmd[3] == ' ')
         {
             POS_SERVO_1 = (int)atof(cmd + 4);
-            DEBUG_PRINT("[CH1]--- ");
-            DEBUG_PRINTLN(POS_SERVO_1);
+            servo1.write(POS_SERVO_1);
         }
     }
     if (cmdStartsWith("CH2"))
@@ -270,40 +261,19 @@ void thuchienlenh()
         if (ch >= 0 && ch <= 9 && cmd[3] == ' ')
         {
             POS_SERVO_2 = (int)atof(cmd + 4);
-            DEBUG_PRINT("[CH2]--- ");
-            DEBUG_PRINTLN(POS_SERVO_2);
-        }
-    }
-    if (cmdStartsWith("CH3"))
-    {
-        int ch = cmd[2] - '0';
-        if (ch >= 0 && ch <= 9 && cmd[3] == ' ')
-        {
-            POS_SERVO_3 = (int)atof(cmd + 4);
-            DEBUG_PRINT("[CH3]--- ");
-            DEBUG_PRINTLN(POS_SERVO_3);
-        }
-    }
-    if (cmdStartsWith("CH4"))
-    {
-        int ch = cmd[2] - '0';
-        if (ch >= 0 && ch <= 9 && cmd[3] == ' ')
-        {
-            POS_SERVO_4 = (int)atof(cmd + 4);
-            DEBUG_PRINT("[CH4]--- ");
-            DEBUG_PRINTLN(POS_SERVO_4);
+            servo2.write(POS_SERVO_2);
         }
     }
     if (cmdStartsWith("POS1"))
     {
-            PROTECT_KEY[4] = 0;
-            C1 = POS_SERVO_1;
-            writeFile(SPIFFS, C1Path, C1.c_str());
+        PROTECT_KEY[4] = 0;
+        C1 = POS_SERVO_1;
+        writeFile(SPIFFS, C1Path, C1.c_str());
     }
     if (cmdStartsWith("POS2"))
     {
-            C2 = POS_SERVO_2;
-            writeFile(SPIFFS, C2Path, C2.c_str());
+        C2 = POS_SERVO_2;
+        writeFile(SPIFFS, C2Path, C2.c_str());
     }
     if (cmdStartsWith("reset"))
     {
@@ -359,40 +329,19 @@ void Phone_ESP()
 
 void ESP_Phone()
 {
-        if (millis() - time_DATA > REFRESH_DURATION_DATA)
-        {
-            char CH1[4];
-            itoa(POS_SERVO_1, CH1, 10);
-            client.write("C1 ");
-            client.write(CH1);
-            client.write("\n");
-            char CH2[4];
-            itoa(POS_SERVO_2, CH2, 10);
-            client.write("C2 ");
-            client.write(CH2);
-            client.write("\n");
-            time_DATA = millis();
-        }
     if (millis() - time_CONNECT > REFRESH_DURATION_CONNECT)
     {
-        int ssi = WiFi.RSSI();
-        char ssi2[4];
-        itoa(ssi, ssi2, 10);
-        client.write("x ");
-        client.write(ssi2);
-        client.write("\n");
+        // int ssi = WiFi.RSSI();
+        // char ssi2[4];
+        // itoa(ssi, ssi2, 10);
+        // client.write("x ");
+        // client.write(ssi2);
+        // client.write("\n");
         client.write("ON on\n");
         time_CONNECT = millis();
     }
 }
 
-static inline String macToString(byte mac[6])
-{
-    char buff[20];
-    snprintf(buff, sizeof(buff), "%02x:%02x:%02x:%02x:%02x:%02x",
-             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    return String(buff);
-}
 static String getWiFiMacAddress()
 {
     return WiFi.macAddress();
