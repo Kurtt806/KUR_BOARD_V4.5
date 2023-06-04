@@ -1,9 +1,4 @@
 
-extern "C"
-{
-    void app_loop();
-    void restartMCU();
-}
 #if defined(MANAGER_WIFI_NAME) && !defined(MANAGER_WIFI_PASS)
 MANAGER_WIFI_PASS = NULL;
 #endif
@@ -27,6 +22,8 @@ class KUR
 public:
     void begin()
     {
+        pinMode(BOARD_LED_PIN,OUTPUT);
+        digitalWrite(BOARD_LED_PIN,LOW);
         Serial.begin(115200);
         if (display.init())
         {
@@ -39,7 +36,6 @@ public:
     }
     void run()
     {
-        void runloop();
         switch (KURState::get())
         {
         case MODE_ANALYSIS:

@@ -6,7 +6,6 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncElegantOTA.h>
 #include "SSD1306Wire.h"
-// #include "Ticker.h"
 #include <ESP32Servo.h>
 //---WIFI------------------------------------
 AsyncWebServer serverOTA(80);
@@ -55,7 +54,7 @@ unsigned long time_DATA = 0;
 unsigned long time_CONNECT = 0;
 unsigned long time_TEST = 0;
 unsigned long currentMillis = millis();
-char cmd[40];
+char cmd[20];
 int cmdIndex;
 unsigned long lastCmdTime = 0;
 unsigned long aliveSentTime = 0;
@@ -220,12 +219,12 @@ void draw_LINEandTEXT()
     // display.drawXbm(0, 54, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
     display.drawHorizontalLine(0, 12, 128); /*  _  */
     display.drawHorizontalLine(50, 40, 90); /*  _  */
-    display.drawVerticalLine(48, 0, 120);   /*  |  */
+    display.drawVerticalLine(48, 0, 50);   /*  |  */
 
     display.drawHorizontalLine(0, 30, 48); /*  _  */
     display.drawHorizontalLine(0, 42, 48); /*  _  */
     display.drawHorizontalLine(0, 54, 48); /*  _  */
-    display.drawVerticalLine(24, 30, 82);  /*  |  */
+    display.drawVerticalLine(24, 30, 20);  /*  |  */
 }
 
 boolean cmdStartsWith(const char *st)
@@ -331,14 +330,14 @@ void ESP_Phone()
 {
     if (millis() - time_CONNECT > REFRESH_DURATION_CONNECT)
     {
+        time_CONNECT = millis();
+        client.write("ON on\n");
         // int ssi = WiFi.RSSI();
         // char ssi2[4];
         // itoa(ssi, ssi2, 10);
         // client.write("x ");
         // client.write(ssi2);
         // client.write("\n");
-        client.write("ON on\n");
-        time_CONNECT = millis();
     }
 }
 

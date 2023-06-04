@@ -11,7 +11,7 @@ void enterLeader()
         draw_INFO_ESP();
         display.display();
     }
-    digitalWrite(BOARD_LED_PIN, LOW);
+    digitalWrite(BOARD_LED_PIN, HIGH);
     initconfig();
     initservo();
     POS_SERVO_1 = C1.toInt();
@@ -34,6 +34,7 @@ void enterLeader()
         }
         else
         {
+            
             KURState::set(MODE_CONNECT);
         }
     }
@@ -43,6 +44,7 @@ void enterConnect()
 {
     DEBUG_PRINTLN("[MODE]--- MODE_CONNECT");
     KURState::set(MODE_CONNECT);
+    digitalWrite(BOARD_LED_PIN, HIGH);
     if (OLED == true)
     {
         display.clear();
@@ -72,6 +74,7 @@ void enterConnect()
             digitalWrite(BOARD_LED_PIN, HIGH);
             DEBUG_PRINTLN("[MODE]--- MODE_RUN");
             serverCAR.begin();
+            digitalWrite(BOARD_LED_PIN,LOW);
             KURState::set(MODE_RUN);
             if (OLED == true)
             {
@@ -81,7 +84,7 @@ void enterConnect()
                 display.drawString(52, 15, ssid);
                 display.drawString(52, 25, pass);
                 display.drawString(52, 42, ip);
-                display.drawString(52, 52, getWiFiMacAddress());
+                display.drawString(10, 52, getWiFiMacAddress());
                 display.drawString(10, 20, "SAFE");
                 display.drawString(2, 30, "CH1");
                 display.drawString(28, 30, "CH2");
@@ -132,9 +135,10 @@ void enterRun()
         servo1.write(POS_SERVO_1);
         servo2.write(POS_SERVO_2);
         KURState::set(MODE_CONNECT);
+        //WiFi.begin(ssid.c_str(), pass.c_str());
+
     }
     initbutton();
-    //KURState::set(MODE_RUN);
 }
 
 void enterConfig()
@@ -159,6 +163,7 @@ void enterConfig()
 void enterWaitConfig()
 {
     KURState::set(MODE_WAIT_CONFIG);
+    digitalWrite(BOARD_LED_PIN,HIGH);
     if (OLED == true)
     {
         display.clear();
