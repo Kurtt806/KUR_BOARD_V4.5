@@ -8,6 +8,7 @@ enum State
   MODE_OTA,
   MODE_WAIT_UPDATE,
   MODE_WAIT_CONFIG,
+  MODE_AP,
   MODE_RESET,
 
   MODE_MAX_VALUE
@@ -22,6 +23,7 @@ const char *StateStr[MODE_MAX_VALUE + 1] = {
     "OTA",
     "WAIT_UPDATE",
     "WAIT_CONFIG",
+    "AP",
     "RESET",
 
     "INIT"};

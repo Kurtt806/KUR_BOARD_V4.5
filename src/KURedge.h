@@ -15,15 +15,15 @@ inline void KURState::set(State m)
         state = m;
     }
 }
-
-
 class KUR
 {
 public:
     void begin()
     {
-        pinMode(BOARD_LED_PIN,OUTPUT);
-        digitalWrite(BOARD_LED_PIN,LOW);
+        pinMode(BOARD_LED_PIN, OUTPUT);
+        digitalWrite(BOARD_LED_PIN, LOW);
+        pinMode(BOARD_USER_PIN_2, INPUT);
+        (digitalRead(BOARD_USER_PIN_2)==LOW ? MODE = true : MODE = false);
         Serial.begin(115200);
         if (display.init())
         {
@@ -33,6 +33,8 @@ public:
         {
             OLED = false;
         }
+        
+
     }
     void run()
     {
@@ -58,6 +60,9 @@ public:
             break;
         case MODE_WAIT_UPDATE:
             enterWaitOTA();
+            break;
+        case MODE_AP:
+            enterAP();
             break;
         case MODE_RESET:
             enterReset();

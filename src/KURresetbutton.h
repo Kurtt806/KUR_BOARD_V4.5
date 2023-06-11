@@ -1,7 +1,7 @@
 
 #ifdef BOARD_BUTTON_PIN
 bool OTA = false;
-bool RES = false;
+bool RST = false;
 volatile bool g_buttonPressed = false;
 volatile uint32_t g_buttonPressTime = -1;
 
@@ -22,11 +22,11 @@ void IRAM_ATTR button_change(void)
 
     if (buttonHoldTime >= BUTTON_HOLD_TIME_ACTION)
     {
-      RES = true;
+      OTA = true;
     }
     else if (buttonHoldTime >= BUTTON_PRESS_TIME_ACTION && buttonHoldTime < BUTTON_HOLD_TIME_ACTION)
     {
-      OTA = true;
+      RST = true;
     }
     g_buttonPressTime = -1;
   }

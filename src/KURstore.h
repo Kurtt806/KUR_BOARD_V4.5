@@ -1,4 +1,3 @@
-
 #include "SPIFFS.h"
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -23,9 +22,8 @@ const char *ssidPath = "/ssid.txt";
 const char *passPath = "/pass.txt";
 const char *ipPath = "/ip.txt";
 const char *gatewayPath = "/gateway.txt";
-IPAddress localIP;
-IPAddress subnet(255, 255, 0, 0);
-IPAddress localGateway;
+
+
 //---SERVO-----------------------------------
 String C1;
 String C2;
@@ -54,7 +52,7 @@ unsigned long time_DATA = 0;
 unsigned long time_CONNECT = 0;
 unsigned long time_TEST = 0;
 unsigned long currentMillis = millis();
-char cmd[20];
+char cmd[50];
 int cmdIndex;
 unsigned long lastCmdTime = 0;
 unsigned long aliveSentTime = 0;
@@ -62,6 +60,8 @@ unsigned long aliveSentTime = 0;
 int PROTECT_KEY[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 bool OLED = false;
+bool MODE = false;
+
 
 void initSPIFFS()
 {
@@ -210,7 +210,7 @@ void draw_INFO_ESP()
 {
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(2, 0, "KUR 4.5");
+    display.drawString(2, 0, "KUR 5.0");
     display.drawString(50, 0, StateStr[KURState::get()]);
     display.setFont(ArialMT_Plain_10);
 }
@@ -245,27 +245,28 @@ boolean cmdStartsWith(const char *st)
 void thuchienlenh()
 {
     lastCmdTime = millis();
-    if (cmdStartsWith("CH1"))
+    if (cmdStartsWith("A")) //CH1
     {
-        int ch = cmd[2] - '0';
-        if (ch >= 0 && ch <= 9 && cmd[3] == ' ')
+        if (cmd[1] == ' ')
         {
-            POS_SERVO_1 = (int)atof(cmd + 4);
+            POS_SERVO_1 = (int)atof(cmd + 2);
             servo1.write(POS_SERVO_1);
+            DEBUG_PRINT("SERVO_1---");
+            DEBUG_PRINTLN(POS_SERVO_1);
         }
     }
-    if (cmdStartsWith("CH2"))
+    if (cmdStartsWith("B")) //CH2
     {
-        int ch = cmd[2] - '0';
-        if (ch >= 0 && ch <= 9 && cmd[3] == ' ')
+        if (cmd[1] == ' ')
         {
-            POS_SERVO_2 = (int)atof(cmd + 4);
+            POS_SERVO_2 = (int)atof(cmd + 2);
             servo2.write(POS_SERVO_2);
+            DEBUG_PRINT("SERVO_2---");
+            DEBUG_PRINTLN(POS_SERVO_2);
         }
     }
     if (cmdStartsWith("POS1"))
     {
-        PROTECT_KEY[4] = 0;
         C1 = POS_SERVO_1;
         writeFile(SPIFFS, C1Path, C1.c_str());
     }
@@ -274,37 +275,28 @@ void thuchienlenh()
         C2 = POS_SERVO_2;
         writeFile(SPIFFS, C2Path, C2.c_str());
     }
-    if (cmdStartsWith("reset"))
-    {
-        PROTECT_KEY[1] = PROTECT_KEY[1] + 1;
-        if (PROTECT_KEY[1] >= 5)
-        {
-            PROTECT_KEY[1] = 0;
-            KURState::set(MODE_RESET);
-        }
-    }
-    if (cmdStartsWith("manager"))
-    {
-        PROTECT_KEY[2] = PROTECT_KEY[2] + 1;
-        if (PROTECT_KEY[2] >= 5)
-        {
-            PROTECT_KEY[2] = 0;
-            KURState::set(MODE_CONFIG);
-        }
-    }
-    if (cmdStartsWith("ota"))
-    {
-        PROTECT_KEY[3] = PROTECT_KEY[3] + 1;
-        if (PROTECT_KEY[3] >= 5)
-        {
-            PROTECT_KEY[3] = 0;
-            KURState::set(MODE_OTA);
-        }
-    }
-    if (cmdStartsWith("alive"))
-    {
-        aliveSentTime = millis();
-    }
+    //     if (cmdStartsWith("S1")) //CH1
+    // {
+    //     int ch = cmd[1] - '0';
+    //     if (ch >= 0 && ch <= 4 && cmd[2] == ' ')
+    //     {
+    //         POS_SERVO_1 = (int)atof(cmd + 3);
+    //         servo1.write(POS_SERVO_1);
+    //         DEBUG_PRINT("SERVO_1---");
+    //         DEBUG_PRINTLN(POS_SERVO_1);
+    //     }
+    // }
+    // if (cmdStartsWith("S2")) //CH2
+    // {
+    //     int ch = cmd[1] - '0';
+    //     if (ch >= 0 && ch <= 4 && cmd[2] == ' ')
+    //     {
+    //         POS_SERVO_2 = (int)atof(cmd + 3);
+    //         servo2.write(POS_SERVO_2);
+    //         DEBUG_PRINT("SERVO_2---");
+    //         DEBUG_PRINTLN(POS_SERVO_2);
+    //     }
+    // }
 }
 
 void Phone_ESP()
@@ -319,7 +311,7 @@ void Phone_ESP()
     else
     {
         cmd[cmdIndex] = c;
-        if (cmdIndex < 10)
+        if (cmdIndex < 50)
         {
             cmdIndex++;
         }
@@ -332,15 +324,15 @@ void ESP_Phone()
     {
         time_CONNECT = millis();
         client.write("ON on\n");
-        // int ssi = WiFi.RSSI();
-        // char ssi2[4];
-        // itoa(ssi, ssi2, 10);
-        // client.write("x ");
-        // client.write(ssi2);
-        // client.write("\n");
+        int ssi = WiFi.RSSI();
+        char ssi2[4];
+        itoa(ssi, ssi2, 10);
+        client.write("x ");
+        client.write(ssi2);
+        client.write("\n");
     }
 }
-
+  
 static String getWiFiMacAddress()
 {
     return WiFi.macAddress();

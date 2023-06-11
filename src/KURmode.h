@@ -4,6 +4,7 @@ void enterLeader()
 {
     DEBUG_PRINTLN("[MODE]--- MODE_ANALYSIS");
     KURState::set(MODE_ANALYSIS);
+    (digitalRead(BOARD_USER_PIN_2) == LOW ? MODE = true : MODE = false);
     if (OLED == true)
     {
         display.clear();
@@ -19,24 +20,74 @@ void enterLeader()
     POS_SERVO_3 = C3.toInt();
     POS_SERVO_4 = C4.toInt();
     servo1.write(POS_SERVO_1);
-    servo3.write(POS_SERVO_2);
-    WiFi.mode(WIFI_STA);
-    if (ssid == "" || ip == "")
+    servo2.write(POS_SERVO_2);
+    // #ifdef KUR_STA
+    if (MODE == false)
     {
-        DEBUG_PRINTLN("[404]--- NO CHANGE SSID OR IP");
-        KURState::set(MODE_CONFIG);
-    }
-    else
-    {
-        if (!WiFi.config(localIP, localGateway, subnet))
+        DEBUG_PRINTLN("[MODE]---MODE STA");
+        WiFi.mode(WIFI_STA);
+        if (ssid == "" || ip == "")
         {
+            DEBUG_PRINTLN("[404]--- NO CHANGE SSID OR IP");
             KURState::set(MODE_CONFIG);
         }
         else
         {
-            
-            KURState::set(MODE_CONNECT);
+            if (!WiFi.config(localIP, localGateway, subnet))
+            {
+                KURState::set(MODE_CONFIG);
+            }
+            else
+            {
+
+                KURState::set(MODE_CONNECT);
+            }
         }
+    }
+    else
+    {
+        DEBUG_PRINTLN("[MODE]---MODE AP");
+        // #endif
+        // #ifdef KUR_AP
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP(w_ssid, w_pass);
+        IPAddress IP = WiFi.softAPIP();
+        WiFi.softAPConfig(ip_AP, ip_AP, netmask_AP);
+        serverCAR.begin(PORT_AP);
+        KURState::set(MODE_AP);
+        // #endif
+    }
+}
+void enterAP()
+{
+    KURState::set(MODE_AP);
+    initbutton();
+    if (client.connected())
+    {
+        ESP_Phone();
+        if (client.available())
+        {
+            Phone_ESP();
+        }
+    }
+    else
+    {
+        client = serverCAR.available();
+        POS_SERVO_1 = C1.toInt();
+        POS_SERVO_2 = C2.toInt();
+        servo1.write(POS_SERVO_1);
+        servo2.write(POS_SERVO_2);
+        if (RST == true)
+        {
+            KURState::set(MODE_RESET);
+        }
+    }
+    if (WiFi.status() == WL_CONNECTION_LOST)
+    {
+        POS_SERVO_1 = C1.toInt();
+        POS_SERVO_2 = C2.toInt();
+        servo1.write(POS_SERVO_1);
+        servo2.write(POS_SERVO_2);
     }
 }
 
@@ -74,7 +125,7 @@ void enterConnect()
             digitalWrite(BOARD_LED_PIN, HIGH);
             DEBUG_PRINTLN("[MODE]--- MODE_RUN");
             serverCAR.begin();
-            digitalWrite(BOARD_LED_PIN,LOW);
+            digitalWrite(BOARD_LED_PIN, LOW);
             KURState::set(MODE_RUN);
             if (OLED == true)
             {
@@ -119,7 +170,7 @@ void enterRun()
         POS_SERVO_2 = C2.toInt();
         servo1.write(POS_SERVO_1);
         servo2.write(POS_SERVO_2);
-        if (RES == true)
+        if (RST == true)
         {
             KURState::set(MODE_CONFIG);
         }
@@ -135,8 +186,6 @@ void enterRun()
         servo1.write(POS_SERVO_1);
         servo2.write(POS_SERVO_2);
         KURState::set(MODE_CONNECT);
-        //WiFi.begin(ssid.c_str(), pass.c_str());
-
     }
     initbutton();
 }
@@ -149,11 +198,12 @@ void enterConfig()
         display.clear();
         draw_LINEandTEXT();
         draw_INFO_ESP();
+        display.drawString(10, 52, getWiFiMacAddress());
         display.display();
     }
     serverCAR.close();
     WiFi.mode(WIFI_OFF);
-    delay(1000);
+    delay(100);
     WiFi.mode(WIFI_AP);
     wifimanager();
     DEBUG_PRINTLN("[MODE]--- MODE_WAIT_CONFIG");
@@ -163,7 +213,7 @@ void enterConfig()
 void enterWaitConfig()
 {
     KURState::set(MODE_WAIT_CONFIG);
-    digitalWrite(BOARD_LED_PIN,HIGH);
+    digitalWrite(BOARD_LED_PIN, HIGH);
     if (OLED == true)
     {
         display.clear();
@@ -172,6 +222,7 @@ void enterWaitConfig()
         display.drawString(52, 15, w_ssid);
         display.drawString(52, 25, w_pass);
         display.drawString(52, 42, "192.168.4.1");
+        display.drawString(10, 52, getWiFiMacAddress());
         display.display();
     }
     initbutton();
@@ -203,6 +254,7 @@ void enterWaitOTA()
         display.clear();
         draw_LINEandTEXT();
         draw_INFO_ESP();
+        display.drawString(10, 52, getWiFiMacAddress());
         display.display();
     }
     initbutton();
@@ -211,14 +263,6 @@ void enterWaitOTA()
 void enterReset()
 {
     DEBUG_PRINTLN("[MODE]--- MODE_RESET");
-    KURState::set(MODE_RESET);
-    if (OLED == true)
-    {
-        display.clear();
-        draw_LINEandTEXT();
-        draw_INFO_ESP();
-        display.display();
-    }
     WiFi.mode(WIFI_OFF);
     ESP.restart();
     while (1)
